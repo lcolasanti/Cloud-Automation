@@ -1,0 +1,88 @@
+{{- if eq .Values.global.platform "OPENSHIFT" }}
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: build-api-gateway-image
+  namespace: {{ .Release.Namespace }}
+spec:
+  source:
+    git:
+      uri: {{ .Values.global.source.fedGitRepo }}
+    type: "Git"
+    {{- if .Values.global.source.secret }}
+    sourceSecret:
+      name: git-secret
+    {{- end }}
+    secrets:
+      - secret:
+          name: api-gateway-build-secret
+        destinationDir: 'emt_resources'
+    configMaps:
+      - configMap:
+          name: build-settings
+        destinationDir: 'emt_resources/apigateway/ext/lib'
+      - configMap:
+          name: build-scripts
+        destinationDir: 'scripts'
+    dockerfile: "FROM image\n
+              ARG GROUP_ID\n
+              ARG DOCKER_IMAGE_ID\n
+              ARG SETUP_APIMGR\n
+              ARG FIPS_MODE\n
+
+              COPY *.fed /opt/emt/ \n
+              COPY emt_resources /opt/emt/ \n
+              COPY scripts/* /opt/Axway/apigateway/posix/bin/\n
+
+              USER root \n
+
+              RUN chmod -R 770 /opt/Axway/apigateway/posix/bin && \
+                  chmod -R 770 /opt/emt && \
+                  cp /opt/emt/lic.lic /opt/Axway/apigateway/conf/licenses && \
+                  mkdir -p /opt/Axway/apigateway/groups/certs/private && \
+                  touch /opt/Axway/apigateway/groups/certs/index.txt && \
+                  echo $(printf '%x\\n' `date +\"%s%2N\"`) > /opt/Axway/apigateway/groups/certs/serial && \
+                  cp /opt/emt/domaincert.pem /opt/Axway/apigateway/groups/certs/ && \
+                  cp /opt/emt/domainkey.pem /opt/Axway/apigateway/groups/certs/private/ && \
+                  cd /opt/Axway/apigateway/posix/bin && \
+                  ./setup-emt-instance \
+                      --props /opt/emt/config.props \
+                      --group-id \"$GROUP_ID\" \
+                      --fed /opt/emt/fed.fed \
+                      --pol /opt/emt/pol.pol \
+                      --env /opt/emt/env.env \
+                      --merge-dir /opt/emt/apigateway \
+                      --docker-image-id \"$DOCKER_IMAGE_ID\" \
+                      --setup-apimgr $SETUP_APIMGR \
+                      --fips $FIPS_MODE && \
+                  rm -rf /opt/emt && \
+                  chmod -R 770 /opt/Axway\n
+
+              CMD [\"/opt/Axway/apigateway/posix/bin/start-emt-instance\"]"
+  output:
+    to:
+      kind: 'ImageStreamTag'
+      name: '{{ .Values.apimgr.imageName }}:latest'
+  strategy:
+    type: docker
+    dockerStrategy:
+      from:
+        kind: 'ImageStreamTag'
+        name: '{{ .Values.global.baseImageName }}:latest'
+      buildArgs:
+        - name: "GROUP_ID"
+          value: "DefaultGroup"
+        - name: 'DOCKER_IMAGE_ID'
+          value: '{{ .Values.global.baseImageName }}'
+        - name: 'SETUP_APIMGR'
+          value: 'false'
+        - name: 'FIPS_MODE'
+          value: 'false'
+  successfulBuildsHistoryLimit: 2 
+  failedBuildsHistoryLimit: 2 
+  triggers:
+    - type: {{ .Values.global.trigger.type | quote }}
+      {{ .Values.global.trigger.type | lower }}:
+        secretReference:
+          name: "webhook-secret"
+{{- end }}

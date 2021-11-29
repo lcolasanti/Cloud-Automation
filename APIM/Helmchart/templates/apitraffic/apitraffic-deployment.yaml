@@ -9,6 +9,8 @@ kind: Deployment
 metadata:
   name: {{ template "apitraffic.name" . }}
   labels: {{- include "apitraffic.labels" . | nindent 4 }}
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ .Values.apitraffic.image }}:latest","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"{{ .Values.apitraffic.image }}\")].image"}]'
 spec:
   replicas: {{ .Values.apitraffic.replicas }}
   selector:
@@ -29,8 +31,10 @@ spec:
 {{- if .Values.apitraffic.priorityClassName }}
       priorityClassName: {{ .Values.apitraffic.priorityClassName }}
 {{- end }}
+      {{- if ne .Values.global.platform "OPENSHIFT" }}
       securityContext:
 {{ toYaml .Values.apitraffic.podSecurityContext | indent 8 }}
+      {{- end }}
       {{- if .Values.apitraffic.serviceAccount }}
       serviceAccount: {{ .Values.apitraffic.serviceAccount }}
       {{- end }}
@@ -86,21 +90,44 @@ spec:
       - name: init-cassandra
         image: busybox:1.33
         command: ['sh', '-c', 'until nc -w 3 -v {{ template "cassandra.name" . }} {{ .Values.cassandra.service.port }}; do echo waiting for cassandra-0; sleep 2; done;']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
       {{- if .Values.mysqlmetrics.internal }}
       - name: init-mysql
         image: busybox:1.33
         command: ['sh', '-c', 'until nc -w 3 -v {{ template "mysqlmetrics.name" . }} {{ .Values.mysqlmetrics.primary.service.port }}; do echo waiting for mysql; sleep 2; done;']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
       {{- end }}
       - name: init-anm
         image: busybox:1.33
         command: ['sh', '-c', 'until nc -w 3 -v {{ template "anm.name" . }} {{ .Values.anm.service.port }}; do echo waiting for anm; sleep 2; done;']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
       {{- if .Values.apitraffic.extraInitContainers }}
 {{ tpl .Values.apitraffic.extraInitContainers . | indent 6 }}
       {{- end }}
       containers:
       - name: "{{ template "apitraffic.name" . }}"
+      {{- if ne .Values.global.platform "OPENSHIFT" }}
         securityContext:
 {{ toYaml .Values.apitraffic.securityContext | indent 10 }}
+      {{- end }}
       {{- if .Values.apitraffic.args }}
         args:
 {{ toYaml .Values.apitraffic.args | indent 8 }}
@@ -109,7 +136,11 @@ spec:
         command:
 {{ toYaml .Values.apitraffic.command | indent 8 }}
       {{- end }}
+        {{- if eq .Values.global.platform "OPENSHIFT" }}
+        image: " "
+        {{- else }}
         image: {{ .Values.global.dockerRepository }}/{{ .Values.apitraffic.image }}:{{ $imageTag }}
+        {{- end }} 
         imagePullPolicy: {{ $imagePullPolicy }}
         livenessProbe:
 {{ toYaml .Values.apitraffic.livenessProbe | indent 10 }}

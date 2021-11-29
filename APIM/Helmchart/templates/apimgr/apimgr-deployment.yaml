@@ -9,6 +9,8 @@ kind: Deployment
 metadata:
   name: {{ template "apimgr.name" . }}
   labels: {{- include "apimgr.labels" . | nindent 4 }}
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ .Values.apimgr.image }}:latest","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"{{ .Values.apimgr.image }}\")].image"}]'
 spec:
   replicas: {{ .Values.apimgr.replicas }}
   selector:
@@ -29,8 +31,10 @@ spec:
 {{- if .Values.apimgr.priorityClassName }}
       priorityClassName: {{ .Values.apimgr.priorityClassName }}
 {{- end }}
+      {{- if ne .Values.global.platform "OPENSHIFT" }}
       securityContext:
 {{ toYaml .Values.apimgr.podSecurityContext | indent 8 }}
+      {{- end }}
       {{- if .Values.apimgr.serviceAccount }}
       serviceAccount: {{ .Values.apimgr.serviceAccount }}
       {{- end }}
@@ -83,21 +87,44 @@ spec:
       - name: init-cassandra
         image: busybox:1.33
         command: ['sh', '-c', 'until nc -w 3 -v {{ template "cassandra.name" . }} {{ .Values.cassandra.service.port }}; do echo waiting for cassandra-0; sleep 2; done;']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
       {{- if .Values.mysqlmetrics.internal }}
       - name: init-mysql
         image: busybox:1.33
         command: ['sh', '-c', 'until nc -w 3 -v {{ template "mysqlmetrics.name" . }} {{ .Values.mysqlmetrics.primary.service.port }}; do echo waiting for mysql; sleep 2; done;']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
       {{- end }}
       - name: init-anm
         image: busybox:1.33
-        command: ['sh', '-c', 'until nc -w 3 -v {{ template "anm.name" . }} {{ .Values.anm.service.port }}; do echo waiting for anm; sleep 2; done;']      
+        command: ['sh', '-c', 'until nc -w 3 -v {{ template "anm.name" . }} {{ .Values.anm.service.port }}; do echo waiting for anm; sleep 2; done;']   
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"   
       {{- if .Values.apimgr.extraInitContainers }}
 {{ tpl .Values.apimgr.extraInitContainers . | indent 6 }}
       {{- end }}
       containers:
       - name: "{{ template "apimgr.name" . }}"
+        {{- if ne .Values.global.platform "OPENSHIFT" }}
         securityContext:
 {{ toYaml .Values.apimgr.securityContext | indent 10 }}
+        {{- end }}
       {{- if .Values.apimgr.args }}
         args:
 {{ toYaml .Values.apimgr.args | indent 8 }}
@@ -106,7 +133,11 @@ spec:
         command:
 {{ toYaml .Values.apimgr.command | indent 8 }}
       {{- end }}
+        {{- if eq .Values.global.platform "OPENSHIFT" }}
+        image: " "
+        {{- else }}
         image: {{ .Values.global.dockerRepository }}/{{ .Values.apimgr.image }}:{{ $imageTag }}
+        {{- end }}
         imagePullPolicy: {{ $imagePullPolicy }}
         livenessProbe:
 {{ toYaml .Values.apimgr.livenessProbe | indent 10 }}

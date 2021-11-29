@@ -1,0 +1,11 @@
+{{- if eq .Values.global.platform "NO" }}}
+{{- if eq .Values.global.platform "OPENSHIFT" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: build-settings 
+  namespace: {{ .Release.Namespace | quote }}
+data:
+{{ (.Files.Glob "ConfigMaps/apigateway/ext/lib/*").AsConfig | indent 2 }}
+{{- end }}
+{{- end }}

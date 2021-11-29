@@ -71,7 +71,20 @@ The following tables lists the optional parameters of the AMPLIFY API Management
 | global.nodeAffinity.enable | Enable component deployment on specific node pool | false |
 | global.nodeAffinity.apimName | Set the node pool name for apim | apimpool |
 | global.nodeAffinity.dbName | Set the node pool name for databases | apimpool |
-| global.enableDynamicLicense | Enable capability to load your license key with a configMap | false |
+| global.license | Name of the license file stored into the Secret folder to load your license key with a configMap | empty |
+
+## Openshift specific
+| Parameter     | Description                           | Default      | Mandatory    |
+|:------------- |:------------------------------------- |:------------ |:------------ |
+| global.baseImageName | Set the baseimage image name | empty   | true |
+| global.baseImageBuildTag | Set the baseimage image tag | empty | true |
+| global.source.fedGitRepo | Git repo where the build process will pull from | empty | false |
+| global.source.secret | Filename containts the filename to be loaded for pulling secret - comment if no secret is needed | empty | false |
+| global.trigger.type | Openshift trigger type - see openshift guide | generic | false | 
+| global.trigger.secret | Containts value for webhook secret - comment if no secret is needed | githubsecret | false |
+   # Domain cert and domain key created or given for the api gateway components domain
+| global.domainCert | Domain cert file name created or given for the api gateway components domain and stored into the Secret folder | domaincert.pem | false |
+| global.domainKey | Domain key file name created or given for the api gateway components domain and stored into the Secret folder | domainkey.pem | false | 
 
 
 ## Helm command examples

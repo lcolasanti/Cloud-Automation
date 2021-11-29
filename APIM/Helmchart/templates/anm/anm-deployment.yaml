@@ -10,6 +10,7 @@ metadata:
   name: {{ template "anm.name" . }}
   labels: {{- include "anm.labels" . | nindent 4 }}
   annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ .Values.anm.image }}:latest","namespace":"{{ .Release.Namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"{{{ .Values.anm.image }}\")].image"}]'
     {{- range $key, $value := .Values.anm.deploymentAnnotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
@@ -30,11 +31,13 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
-{{- if .Values.anm.priorityClassName }}
+      {{- if .Values.anm.priorityClassName }}
       priorityClassName: {{ .Values.anm.priorityClassName }}
-{{- end }}
+      {{- end }}
+      {{- if ne .Values.global.platform "OPENSHIFT" }}
       securityContext:
 {{ toYaml .Values.anm.podSecurityContext | indent 8 }}
+      {{- end }}
       {{- if .Values.anm.serviceAccount }}
       serviceAccount: {{ .Values.anm.serviceAccount }}
       {{- end }}
@@ -84,6 +87,13 @@ spec:
       - name: init-mysql
         image: busybox:1.33
         command: ['sh', '-c', 'until nc -w 3 -v {{ template "mysqlmetrics.name" . }} {{ .Values.mysqlmetrics.primary.service.port }}; do echo waiting for mysql; sleep 2; done;']
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
       {{- end }}
       {{- if .Values.anm.extraInitContainers }}
 {{ tpl .Values.anm.extraInitContainers . | indent 6 }}
@@ -98,14 +108,15 @@ spec:
         command:
 {{ toYaml .Values.anm.command | indent 8 }}
       {{- end }}
+      {{- if ne .Values.global.platform "OPENSHIFT" }}
         securityContext:
 {{ toYaml .Values.anm.securityContext | indent 10 }}
-        {{- if .Values.base.useImagestream }}
-        command: ["sh", "-c", "tail -f /dev/null" ]
-        image: {{ .Values.anm.image }}:{{ $imageTag }}
-        {{- else }}
+      {{- end }}
+      {{- if eq .Values.global.platform "OPENSHIFT" }}
+        image: " "
+      {{- else }}
         image: {{ .Values.global.dockerRepository }}/{{ .Values.anm.image }}:{{ $imageTag }}
-        {{- end }}
+      {{- end }}
         imagePullPolicy: {{ $imagePullPolicy }}
         livenessProbe:
 {{ toYaml .Values.anm.livenessProbe | indent 10 }}

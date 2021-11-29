@@ -1,0 +1,9 @@
+{{- if eq .Values.global.platform "OPENSHIFT" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: build-scripts
+  namespace: {{ .Release.Namespace | quote }}
+data:
+{{ (.Files.Glob "ConfigMaps/scripts/*").AsConfig | indent 2 }}
+{{- end }}

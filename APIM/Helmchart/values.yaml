@@ -23,24 +23,40 @@ global:
 
    # AZURE, OPENSHIFT, MINIKUBE
    platform: ""
-   # If you provide your license in your myValues.yaml, a Secret axway-apim-license will be created and automatically mountered 
+   # If you provide your license in the Secret folder, a Secret axway-apim-license will be created and automatically mountered 
    # into the API Gateway PODs. 
+   # Write down the name of your license file
    # Alternatively, you can use your own secret and reference it via licenseSecretName below.
    # Or you can build the image with the license included.
-   license: {}
-      # FIPS=1
-      # SalesForce Connector=1
-      # ServiceNow Connector=1
-      # analytics=1
-      # ...
-      # .....
-      # ...
-      # # SIGNATURE: 8eee280ede1a7fd94b91130c78da44f403f8bd9f927bc96bfd6a2a94839c049b
-      # # SIGNATURE: 096e86bb928c5865c77596de3814f116b9b3f4923441ac0cb8e7189f9c0f5971
+   license: 
 
    # If you want to use your own secret, specify the name of the secret here, 
    # which contains the license Base64 encoded with key license
-   existingLicenseSecret: 
+   existingLicenseSecret:
+
+##################################################################################################################################
+#   O P E N S C I F T  S P E C I F I C  C O N F I G U R A T I O N
+##################################################################################################################################
+   # KNOWN LIMITATION Build config
+   # 1) The FED file need to be named fed.fed into the git repo
+   # 2) To merge the libraries to the destination image, create manually the following configmap 'oc create configmap build-settings --from-file=<your_lib>' in the same namespace
+   # this is an HELM 3 limitation that not permit to execeed HELM chart > 1MB 
+   # futhermore it is MANDATORY to add the following files into the Secret forlder here the naming of the files
+   # domain cert 
+   # domain key 
+   baseImageName: "apim7.7-apigw-base-openshift"
+   baseImageBuildTag: "7.7.032021"
+   source:
+      fedGitRepo: "git@github.com:lcolasanti/fed.git"
+      # filename containts the filename to be loaded for pulling secret - comment if no secret is needed
+      secret: "key"
+   trigger:
+      type: "Generic"
+      # filename containts value for webhook secret - comment if no secret is needed
+      secret: "githubsecret"
+   # Domain cert and domain key created or given for the api gateway components domain
+   domainCert: "domaincert.pem"
+   domainKey: "domainkey.pem"
 
 ##################################################################################################################################
 #   A D M I N - N O D E M A N A G E R
@@ -61,6 +77,7 @@ anm:
       labels: {}
       annotations: {}
    # General ingress settings.
+   # In case of Openshift NOT take in cosideration
    ingress:
       enabled: true
       name: anm
@@ -191,7 +208,7 @@ anm:
          </ConfigurationFragment>
 
 ##################################################################################################################################
-#   API MANAGER
+#   API MANAGER UI
 ##################################################################################################################################
 apimgr:
    enabled: true

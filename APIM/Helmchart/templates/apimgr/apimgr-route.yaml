@@ -1,20 +1,21 @@
 {{- if .Values.apimgr.enabled -}}
-
 {{- if eq .Values.global.platform "OPENSHIFT" }}
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: {{ .Values.apimgr.name }}
 spec:
+  host: api-manager.{{ .Values.global.domainName }}
   to:
     kind: Service
     name: {{ .Values.apimgr.name }}
   port:
     targetPort: {{ .Values.apimgr.trafficPort }}
   tls:
-    termination: passthrough
+    termination: reencrypt
+    destinationCACertificate: "-----BEGIN CERTIFICATE-----\nMIICwzCCAasCBgE6HBsdpzANBgkqhkiG9w0BAQUFADAlMSMwIQYDVQQDExpDaGFu\r\nZ2UgdGhpcyBmb3IgcHJvZHVjdGlvbjAeFw0xMjEwMDExMTMyMDBaFw0zNzEwMDEx\r\nMTMyMDBaMCUxIzAhBgNVBAMTGkNoYW5nZSB0aGlzIGZvciBwcm9kdWN0aW9uMIIB\r\nIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm2I2+GHcXXzwyjqMP6E4shjx\r\nfpAfgqbCY/nF5oTq0SkcRKvsdJzuLbmufkqx1rQqxwF/aZnbZppcVtR4TAhExmo2\r\nNnV7WjSwdd+EynQJrkWlsuK1UQ3JHMo5iAAEQ11xoMBIsUwfg5HYKCELmjnWetwh\r\nm5aUJ9Gq45v9kzeZki2oCoVe5LQfVVHEYssr+SfVrhi6+OffeefgCRse6vv5T4zl\r\nh4xXKDNUsBxYYB3Vg97tDcdgpfx8BudpBx+1ITk9Dazu8eegXN5KdRqJGgM5LSRI\r\nWjK+OumR1a2ReUcXlglWTVfsG43UUUby2bql3E3uc7XpxzQaPpt4aDqfOYMUxwID\r\nAQABMA0GCSqGSIb3DQEBBQUAA4IBAQAl+yHca9jCZ/zVgtITGWGKQiNb8UqFJE+Q\r\nxmLt+j2lEWpG3Fd1M40faRrDujbk8WvG4Iz/NamlvvkbpbMSRY67lPpjsZOKlezT\r\nTE2YQTtyuFT7QQTYHYPZWK4Dg8QisMI5vHnrzsPc9ZAHm+IZrxbuVXsZQoU7qyaM\r\ndG27WWVa6vJ4nXjuMO6sOtl+UnEXpn3vCpNzkkbJW2LvFCs0Ymnx7Wet3inskOKg\r\n//AGuv+m3rD/Byphd8Iblt3jSNDwMcG+Yhpi/Wd50iMFFkTnrkEmosvqWL5j6N7e\r\nJZszgdL7Zz9ztASutzU4a0YFpv111NxpBdNpphOVED85IbRHxTjL\r\n-----END
+        CERTIFICATE-----\n"
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{- end }}
-
 {{- end }}
