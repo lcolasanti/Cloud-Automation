@@ -820,12 +820,6 @@ agents:
 ##################################################################################################################################
 #   global
 ##################################################################################################################################
-
-# custom storage classes - leave them blank if you want to use the defaul 
-customStorageClass:
-   scrwo: 
-   scrwm: 
-
 pvcs:
    # custom storage classes - leave them blank if you want to use the defaul 
    customStorageClass:
