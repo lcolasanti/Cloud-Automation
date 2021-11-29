@@ -82,7 +82,6 @@ The following tables lists the optional parameters of the AMPLIFY API Management
 | global.source.secret | Filename containts the filename to be loaded for pulling secret - comment if no secret is needed | empty | false |
 | global.trigger.type | Openshift trigger type - see openshift guide | generic | false | 
 | global.trigger.secret | Containts value for webhook secret - comment if no secret is needed | githubsecret | false |
-   # Domain cert and domain key created or given for the api gateway components domain
 | global.domainCert | Domain cert file name created or given for the api gateway components domain and stored into the Secret folder | domaincert.pem | false |
 | global.domainKey | Domain key file name created or given for the api gateway components domain and stored into the Secret folder | domainkey.pem | false | 
 
