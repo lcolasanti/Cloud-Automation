@@ -1,3 +1,4 @@
+{{- if .Values.pvcs.events.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -6,7 +7,15 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
-{{ toYaml .Values.pvcs.eventsVolumeClaim | indent 2 }}
+  accessModes:
+    - ReadWriteMany
+  {{- if .Values.global.customStorageClass.scrwm }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwm }}
+  {{- end }}
+{{ toYaml .Values.pvcs.events.eventsVolumeClaim | indent 2 }}
+{{- end }}
+
+{{- if .Values.pvcs.opentraffic.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -16,7 +25,49 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
-{{ toYaml .Values.pvcs.opentrafficVolumeClaim | indent 2 }}
+  accessModes:
+    - ReadWriteMany
+  {{- if .Values.global.customStorageClass.scrwm }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwm }}
+  {{- end }}
+{{ toYaml .Values.pvcs.opentraffic.opentrafficVolumeClaim | indent 2 }}
+{{- end }}
+
+{{- if .Values.pvcs.trace.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apigw-trace
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    helm.sh/resource-policy: "keep"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
+{{ toYaml .Values.pvcs.trace.traceVolumeClaim | indent 2 }}
+{{- end}}
+
+{{- if .Values.pvcs.audit.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: apigw-audit
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    helm.sh/resource-policy: "keep"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
+{{ toYaml .Values.pvcs.audit.auditVolumeClaim | indent 2 }}
+{{- end}}
 ---
 {{- if and .Values.mysqlmetrics.internal .Values.mysqlmetrics.primary.persistence.enabled }}
 apiVersion: v1
@@ -28,6 +79,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.metricsDbVolumeClaim | indent 2 }}
 {{- end}}
 ---
@@ -41,6 +97,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalDbVolumeClaim | indent 2 }}
 {{- end}}
 
@@ -55,6 +116,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalEnckeyVolumeClaim | indent 2 }}
 ---
 apiVersion: v1
@@ -66,6 +132,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalImagesVolumeClaim | indent 2 }}
 ---
 apiVersion: v1
@@ -77,6 +148,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalLanguageVolumeClaim | indent 2 }}
 ---
 apiVersion: v1
@@ -88,6 +164,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalTemplatesVolumeClaim | indent 2 }}
 ---
 apiVersion: v1
@@ -99,6 +180,11 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalAdmLanguageVolumeClaim | indent 2 }}
 ---
 apiVersion: v1
@@ -110,5 +196,10 @@ metadata:
   annotations:
     helm.sh/resource-policy: "keep"
 spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.global.customStorageClass.scrwo }}
+  storageClassName: {{ .Values.global.customStorageClass.scrwo }}
+  {{- end }}
 {{ toYaml .Values.pvcs.apiportalCertsVolumeClaim | indent 2 }}
 {{- end}}

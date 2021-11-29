@@ -821,51 +821,48 @@ agents:
 #   PVCs
 ##################################################################################################################################
 
+# custom storage classes - leave them blank if you want to use the defaul 
+customStorageClass:
+   scrwo: 
+   scrwm: 
+
 pvcs:
    eventsVolumeClaim:
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 10Gi
 
    opentrafficVolumeClaim:
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 10Gi
 
    metricsDbVolumeClaim:
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 10Gi
 
    apiportalDbVolumeClaim:
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 1Gi
 
    apiportalImagesVolumeClaim: 
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 25Mi
 
    apiportalEnckeyVolumeClaim: 
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 2Mi
 
    apiportalLanguageVolumeClaim: 
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 2Mi
 
    apiportalTemplatesVolumeClaim: 
-      accessModes: [ "ReadWriteOnce" ]
       resources:
          requests:
             storage: 5Mi
