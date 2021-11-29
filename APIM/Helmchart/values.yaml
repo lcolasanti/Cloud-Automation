@@ -818,7 +818,7 @@ agents:
       fsGroup: 1000
 
 ##################################################################################################################################
-#   PVCs
+#   global
 ##################################################################################################################################
 
 # custom storage classes - leave them blank if you want to use the defaul 
@@ -826,7 +826,12 @@ customStorageClass:
    scrwo: 
    scrwm: 
 
-pvcs:
+global:
+   # custom storage classes - leave them blank if you want to use the defaul 
+   customStorageClass:
+      scrwo: 
+      scrwm:
+
    eventsVolumeClaim:
       resources:
          requests:

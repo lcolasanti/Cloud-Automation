@@ -72,8 +72,8 @@ The following tables lists the optional parameters of the AMPLIFY API Management
 | global.nodeAffinity.apimName | Set the node pool name for apim | apimpool |
 | global.nodeAffinity.dbName | Set the node pool name for databases | apimpool |
 | global.license | Name of the license file stored into the Secret folder to load your license key with a configMap | empty |
-| customStorageClass.scrwo | Custom storage class for RWO PVs | empty | 
-| customStorageClass.scrwm | Custom storage class fort RWX PVs | empty |
+| global.customStorageClass.scrwo | Custom storage class for RWO PVs | empty | 
+| global.customStorageClass.scrwm | Custom storage class fort RWX PVs | empty |
 
 ## Openshift specific
 | Parameter     | Description                           | Default      | Mandatory    |
