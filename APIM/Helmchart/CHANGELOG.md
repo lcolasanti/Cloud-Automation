@@ -33,6 +33,6 @@ All notable changes to this project will be documented in this file.
 - BuildConfig
     - OPENSHIFT ONLY
     - added buildconfig configurations
-- global
+- pvcs
     - moved access mode to the PVC definition yaml
-    - added storage classes definition global (not mandatory)
+    - added storage classes definition PVCs (not mandatory)

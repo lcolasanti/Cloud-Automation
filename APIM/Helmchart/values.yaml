@@ -826,7 +826,7 @@ customStorageClass:
    scrwo: 
    scrwm: 
 
-global:
+pvcs:
    # custom storage classes - leave them blank if you want to use the defaul 
    customStorageClass:
       scrwo: 
