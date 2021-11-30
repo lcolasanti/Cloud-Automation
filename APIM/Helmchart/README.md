@@ -74,6 +74,9 @@ The following tables lists the optional parameters of the AMPLIFY API Management
 | global.license | Name of the license file stored into the Secret folder to load your license key with a configMap | empty |
 | pvcs.customStorageClass.scrwo | Custom storage class for RWO PVs | empty | 
 | pvcs.customStorageClass.scrwm | Custom storage class fort RWX PVs | empty |
+| apitraffic.autoscaling.enable | enable the API Traffic POD autoscaling | false |
+| apitraffic.autoscaling.maxReplicas | max API Traffic POD replicas allowed | 9 |
+| apitraffic.autoscaling.averageUtilization | average CPU utilization percentage that trugger new replica creation or destroy | 70 |
 
 ## Openshift specific
 | Parameter     | Description                           | Default      | Mandatory    |

@@ -364,6 +364,12 @@ apitraffic:
    imageTag: ""
    nameOverride: ""
 
+   # autoscaling API Traffic POD
+   autoscaling: 
+      enable: false
+      maxReplicas: 9
+      averageUtilization: 70
+
    # Allows you to add any environment variables
    extraEnvs: []
    # - name: MY_ENVIRONMENT_VAR

@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
     - removed security context when openshift
     - modified route, added host definition
     - modified route, changed from passthrou to reencrypt
+    - added HPA
 - license
     - removed the license content from the value.yaml
     - added the possibility to add a license file in the Secret folder and declare it into the value.yaml
